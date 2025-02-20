@@ -1,7 +1,39 @@
+import ProductCar from "@/components/products/ProductCar";
+import { prisma } from "@/src/lib/prisma" 
 
-export default async function page({ params }: { params: { category: string } }) {
+async function getProducts(category: string) {
+  const products = await prisma.product.findMany({
+    where: {
+      category: {
+        slug: category
+      }
+    }
+  })
+  return products
+}
+
+
+export default async function CategoryPage({ params }: { params: { category: string } }) {
   const resolvedParams = await params;
+
+  const products = await getProducts(resolvedParams.category)
   
-  return <div>Category: {resolvedParams.category}</div>;
+  return (
+    <>
+      <h1 className="text-2xl my-10">
+        Elige y personaliza tu pedido a continuación</h1>
+      <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4 items-start">
+        {
+          products.map( product => (
+            <ProductCar
+              key={product.id}
+              product={product}
+            />
+          ))
+        }
+      </div>
+
+    </>
+  )
 
 }
